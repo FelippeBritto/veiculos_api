@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { db } = require('../models/veiculos.model');
 
 const Veiculo = require('../models/veiculos.model');
 
@@ -11,12 +12,11 @@ const Veiculo = require('../models/veiculos.model');
 ///// * Consultar Veículo pela placa
 ///// * Editar Veículo pela placa
 ///// * Deletar Veículo pela placa
-
-// !Adicionar Revisão pela placa
+///// *Adicionar Revisão pela placa
+///// * Validação da placa
 
 // !Consultar Total de gasto em revisões do veículo pela placa
 // !Consultar Total de gasto em revisões do veículo pela marca
-//* Validação da placa
 const validation = (param) => {
    let regex = new RegExp("^[a-zA-Z]{3}[0-9]{4}$");
 
@@ -147,9 +147,28 @@ router.delete('/deletar-veiculo/:placaVeiculo', (req, res, next) => {
 
 //* Adicionar revisão pela placa
 
-router.put('/adicionar-revisao/:placaVeiculo', (req, res, next) => {
+router.route('/adicionar-revisao/:placaVeiculo').put((req, res, next) => {
    const placa = req.params.placaVeiculo;
 
+   Veiculo.updateOne(
+      { PLACA: placa },
+      {
+         $push: {
+            REVISOES: [{
+               DATA_REVISAO: req.body.revisoes.dataRevisao,
+               VALOR: req.body.revisoes.valor,
+            }]
+         }
+      },
+      function (err, result) {
+         if (err) {
+            res.send(err);
+         } else {
+            res.send(result);
+         }
+      }
+   );
+})
+// //* Consultar valor total das revisões por placa
 
-});
 module.exports = router;
