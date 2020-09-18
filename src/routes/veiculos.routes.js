@@ -16,10 +16,26 @@ const Veiculo = require('../models/veiculos.model');
 
 // !Consultar Total de gasto em revisões do veículo pela placa
 // !Consultar Total de gasto em revisões do veículo pela marca
+//* Validação da placa
+const validation = (param) => {
+   let regex = new RegExp("^[a-zA-Z]{3}[0-9]{4}$");
 
+   if (regex.test(param)) {
+      return true;
+   }
+   return false;
+}
 
 // * Cadastrar novo Veículo
 router.post('/cadastrar-veiculo', (req, res, next) => {
+   const placaV = req.body.placa;
+
+   if (!validation(placaV)) {
+      res.status(500).json({
+         message: 'Placa Inválida!'
+      });
+   }
+
    const veiculo = new Veiculo({
       _id: new mongoose.Types.ObjectId(),
       PLACA: req.body.placa,
@@ -28,10 +44,10 @@ router.post('/cadastrar-veiculo', (req, res, next) => {
       COR: req.body.cor,
       ANO_FABRICACAO: req.body.anoFabricacao,
       DATA_CADASTRO: req.body.dataCadastro,
-      REVISOES: {
-         DATA_REVISAO: req.body.dataRevisao,
-         VALOR: req.body.valor,
-      }
+      REVISOES: [{
+         DATA_REVISAO: req.body.revisoes.dataRevisao,
+         VALOR: req.body.revisoes.valor,
+      }]
    });
    veiculo.save()
       .then(result => {
@@ -94,10 +110,10 @@ router.put('/atualizar-veiculo/:placaVeiculo', (req, res, next) => {
          COR: req.body.cor,
          ANO_FABRICACAO: req.body.anoFabricacao,
          DATA_CADASTRO: req.body.dataCadastro,
-         REVISOES: {
-            DATA_REVISAO: req.body.dataRevisao,
-            VALOR: req.body.valor,
-         }
+         REVISOES: [{
+            DATA_REVISAO: req.body.revisoes.dataRevisao,
+            VALOR: req.body.revisoes.valor,
+         }]
       }
    })
       .then(result => {
@@ -127,5 +143,13 @@ router.delete('/deletar-veiculo/:placaVeiculo', (req, res, next) => {
             error: err
          });
       });
+});
+
+//* Adicionar revisão pela placa
+
+router.put('/adicionar-revisao/:placaVeiculo', (req, res, next) => {
+   const placa = req.params.placaVeiculo;
+
+
 });
 module.exports = router;

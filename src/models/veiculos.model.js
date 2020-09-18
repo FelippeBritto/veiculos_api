@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
+const revisoesSchema = mongoose.Schema({
+   DATA_REVISAO: {
+      type: String,
+   },
+   VALOR: {
+      type: Number
+   },
+});
+
 const veiculoSchema = mongoose.Schema(
    {
       _id: mongoose.Schema.Types.ObjectId,
       PLACA: {
-         type: String
+         type: String,
+         required: true,
+         unique: true
       },
       MARCA: {
          type: String,
@@ -21,14 +32,7 @@ const veiculoSchema = mongoose.Schema(
       DATA_CADASTRO: {
          type: String
       },
-      REVISOES: {
-         DATA_REVISAO: {
-            type: String
-         },
-         VALOR: {
-            type: Number
-         },
-      }
+      REVISOES: [revisoesSchema]
    },
    {
       timestamps: true,
